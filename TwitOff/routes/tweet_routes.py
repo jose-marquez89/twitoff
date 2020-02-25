@@ -16,9 +16,9 @@ def create_tweet():
     db.session.add(new)
     db.session.commit()
 
-    return jsonify({
-        "id": "id Created",
-        "content": dict(request.form)
-    })
+    return render_template("tweet_success.html")
 
+@tweet_routes.route("/tweets/another-tweet")
+def tweet_again():
+    return render_template("new_tweet.html")
 

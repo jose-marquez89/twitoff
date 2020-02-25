@@ -9,7 +9,7 @@ def create_app():
     """Create and configure an instance of Flask"""
     app = Flask(__name__)
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/jose/Documents/lambda/repos/twitoff/twitoff.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/jose/Documents/lambdaRepos/twitoff/twitoff.db"
     db.init_app(app)
     migrate.init_app(app, db)
 

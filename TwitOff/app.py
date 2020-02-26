@@ -1,15 +1,21 @@
+import os
 from flask import Flask, jsonify, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from TwitOff.models import db, migrate
 from TwitOff.routes.tweet_routes import tweet_routes
 from TwitOff.routes.user_routes import user_routes
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SQLITE_PATH = os.getenv("SQLITE_PATH")
 
 def create_app():
     """Create and configure an instance of Flask"""
     app = Flask(__name__)
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/jose/Documents/lambdaRepos/twitoff/twitoff.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = SQLITE_PATH
     db.init_app(app)
     migrate.init_app(app, db)
 

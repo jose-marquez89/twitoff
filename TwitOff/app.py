@@ -16,6 +16,7 @@ def create_app():
     app = Flask(__name__)
 
     app.config["SQLALCHEMY_DATABASE_URI"] = SQLITE_PATH
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
     migrate.init_app(app, db)
 
@@ -23,3 +24,5 @@ def create_app():
     app.register_blueprint(home_routes)
 
     return app
+
+twitoff = create_app()

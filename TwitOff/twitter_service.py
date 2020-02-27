@@ -16,9 +16,7 @@ def twitter_api():
                                TWITTER_API_SECRET)
     auth.set_access_token(TWITTER_ACCESS_TOKEN,
                           TWITTER_ACCESS_TOKEN_SECRET)
-    print("AUTH", auth)
     api = tweepy.API(auth)
-    print("API", api)
 
     return api
 

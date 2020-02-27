@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SQLITE_PATH = os.getenv("SQLITE_PATH")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def create_app():
     """Create and configure an instance of Flask"""

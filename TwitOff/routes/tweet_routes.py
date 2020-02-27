@@ -73,6 +73,7 @@ def request_user():
         return jsonify({"message": "USER CREATED OK"})
     except Exception as err:
         requested = request.form["new_user"]
+        logging.error(err)
         return jsonify({"message": f"Can't find {requested}"})
 
 @tweet_routes.route("/users/set")
@@ -85,29 +86,29 @@ def predict():
     screen_name_a = request.form["screen_name_a"]
     screen_name_b = request.form["screen_name_b"]
     tweet_text = request.form["tweet_text"]
-    
+
     user_a = User.query.filter(User.screen_name == screen_name_a).one()
     user_b = User.query.filter(User.screen_name == screen_name_b).one()
-    
-     
-    
-    
+
+
+
+
     X = []
     y = []
     for tweet in user_a.tweets:
         y.append(user_a.screen_name)
         X.append(tweet.embedding)
-        
+
     for tweet in user_b.tweets:
         y.append(user_b.screen_name)
         X.append(tweet.embedding)
-        
+
     classifier = LogisticRegression()
     classifier.fit(X, y)
-             
+
     embedded_tweet = basilica.embed_sentence(tweet_text)
     prediction = classifier.predict([embedded_tweet])
 
-    return render_template("results.html", 
+    return render_template("results.html",
         predicted=prediction[0]
     )

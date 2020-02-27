@@ -1,9 +1,12 @@
+import logging
 from flask import Blueprint, jsonify, request, render_template
 from TwitOff.models import db, User, Tweet
 from TwitOff.twitter_service import twitter_api
 from TwitOff.basilica_service import basiliconn
 
-twitter_api_client = twitter_api()
+logging.basicConfig(level=logging.DEBUG, format='%(levelname)s:%(message)s')
+
+twit_cli = twitter_api()
 basilica = basiliconn()
 
 tweet_routes = Blueprint("tweet_routes", __name__)
@@ -21,66 +24,99 @@ def list_users():
         user.append(d)
     return jsonify(users)
 
+@tweet_routes.route("/users/add")
+def add_new():
+    return render_template("add_new.html")
 
-@tweet_routes.route("/users/<screen_name>")
-def get_user(screen_name=None):
-    print(screen_name)
+@tweet_routes.route("/users/request", methods=["POST"])
+def request_user():
 
     try:
-        twitter_user = twitter_api_client.get_user(screen_name)
+        twitter_user = twit_cli.get_user(request.form["new_user"])
+        logging.info(twitter_user.id)
+        # ~ breakpoint()
+        # check if user is in database
+        logging.info("Trying query for user...")
+        if User.query.get(twitter_user.id) == None:
+            user = User(id=twitter_user.id)
+        else:
+            return jsonify({"message": "EXISTS User Exists"})
 
-        # find or create database user:
-        db_user = (User.query.get(twitter_user.id) or
-                   User(id=twitter_user.id))
-        db_user.screen_name = twitter_user.screen_name
-        db_user.name = twitter_user.name
-        db_user.location = twitter_user.location
-        db_user.followers_count = twitter_user.followers_count
-        db.session.add(db_user)
+        user.screen_name = twitter_user.screen_name
+        user.name = twitter_user.name
+        user.location = twitter_user.location
+        user.followers_count = twitter_user.followers_count
+
+        # ~ breakpoint()
+
+        db.session.add(user)
         db.session.commit()
 
-        statuses = twitter_api_client.user_timeline(
-                                                screen_name,
-                                                tweet_mode="extended",
-                                                count=50,
-                                                exclude_replies=True,
-                                                include_rts=False
-                                                )
+        statuses = twit_cli.user_timeline(request.form["new_user"],
+                                          tweet_mode="extended",
+                                          count=50,
+                                          exclude_replies=True,
+                                          include_rts=False)
+
         for status in statuses:
-            print(status.full_text)
-            print("==============")
+            tweet = Tweet(id=status.id)
+            tweet.user_id = status.author.id
+            tweet.full_text = status.full_text
+            tweet.embedding = basilica.embed_sentence(status.full_text)
 
-            db_tweet = Tweet.query.get(status.id) or Tweet(id=status.id)
-            db_tweet.user_id = status.author.id
-            db_tweet.full_text = status.full_text
-            db_tweet.embedding = basilica.embed_sentence(status.full_text)
-
-            db.session.add(db_tweet)
-
+            db.session.add(tweet)
+            logging.info("Successfully completed commit.")
         db.session.commit()
 
-        return render_template("user.html",
-                               user=db_user,
-                               tweets=statuses)
-    except Exception:
-        return jsonify({"message": "OOPS User Not Found!"})
+        # TODO: Add a success extension for layout
+        return jsonify({"message": "USER CREATED OK"})
+    except Exception as err:
+        requested = request.form["new_user"]
+        return jsonify({"message": f"Can't find {requested}"})
 
+@tweet_routes.route("/users/set")
+def set_users():
+    user_records = User.query.all()
+    return render_template("predictions.html", users=user_records)
+# ~ @tweet_routes.route("/users/<screen_name>")
+# ~ def get_user(screen_name=None):
+    # ~ print(screen_name)
 
-# ~ @tweet_routes.route("/tweets/new-tweet")
-# ~ def new_tweet():
-    # ~ return render_template("new_tweet.html")
+    # ~ try:
+        # ~ twitter_user = twit_cli.get_user(screen_name)
 
+        # ~ # find or create database user:
+        # ~ db_user = (User.query.get(twitter_user.id) or
+                   # ~ User(id=twitter_user.id))
+        # ~ db_user.screen_name = twitter_user.screen_name
+        # ~ db_user.name = twitter_user.name
+        # ~ db_user.location = twitter_user.location
+        # ~ db_user.followers_count = twitter_user.followers_count
+        # ~ db.session.add(db_user)
+        # ~ db.session.commit()
 
-# ~ @tweet_routes.route("/tweets/create-new", methods=["POST"])
-# ~ def create_tweet():
+        # ~ statuses = twit_cli.user_timeline(screen_name,
+                                          # ~ tweet_mode="extended",
+                                          # ~ count=50,
+                                          # ~ exclude_replies=True,
+                                          # ~ include_rts=False)
+        # ~ for status in statuses:
+            # ~ print(status.full_text)
+            # ~ print("==============")
 
-    # ~ new = Tweet(content=request.form["content"])
-    # ~ db.session.add(new)
-    # ~ db.session.commit()
+            # ~ db_tweet = Tweet.query.get(status.id) or Tweet(id=status.id)
+            # ~ db_tweet.user_id = status.author.id
+            # ~ db_tweet.full_text = status.full_text
+            # ~ db_tweet.embedding = basilica.embed_sentence(status.full_text)
 
-    # ~ return render_template("tweet_success.html")
+            # ~ db.session.add(db_tweet)
 
+        # ~ db.session.commit()
+        # ~ logging.info("Successfully completed commit.")
 
-# ~ @tweet_routes.route("/tweets/another-tweet")
-# ~ def tweet_again():
-    # ~ return render_template("new_tweet.html")
+        # ~ return render_template("user.html",
+                               # ~ user=db_user,
+                               # ~ tweets=statuses)
+    # ~ except Exception as err:
+        # ~ return jsonify({"message": "OOPS User Not Found!",
+                        # ~ "error": err})

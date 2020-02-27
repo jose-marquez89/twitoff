@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h2>Who's Tweet Is It?</h2>
+
+    <p>First add users, then use the form below to predict which user is more likely to say a given tweet</p>
+    {% if users %}
+        <form action="/predict" method="POST">
+
+            <label>Twitter User A:</label>
+            <select name="screen_name_a">
+                {% for user in users %}
+                    <option value={{ user.screen_name }}>{{ user.screen_name }}</option>
+                {% endfor %}
+            </select>
+            <br>
+
+            <label>Twitter User B:</label>
+            <select name="screen_name_b">
+                {% for user in users %}
+                    <option value={{ user.screen_name }}>{{ user.screen_name }}</option>
+                {% endfor %}
+            </select>
+            <br>
+
+            <label>Tweet Text:</label>
+            <input type="text" name="tweet_text" placeholder="Tesla Model S production facility is great" value="Tesla Model S production facility is great">
+            <br>
+
+            <button>Submit</button>
+        </form>
+    {% else %}
+        <p>No users. Please add some users first.</p>
+    {% endif %}
+
+
+
+
+
+{% endblock %}

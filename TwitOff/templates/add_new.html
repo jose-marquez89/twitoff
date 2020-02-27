@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h2>Add a new user: </h2>
+    <form action="/users/request", method="POST">
+        <label>User:</label>
+        <input type="text" name="new_user" placeholder="Enter User">
+        <button>Get User</button>
+    </form>
+    <br>
+    <p><strong>Caution</strong> - Reset the database:</p>
+    <form action="/reset", method="DELETE">
+        <button>Reset Database</button>
+    </form>
+
+{% endblock %}

@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from TwitOff.models import db, migrate
 from TwitOff.routes.tweet_routes import tweet_routes
-from TwitOff.routes.user_routes import user_routes
+from TwitOff.routes.home_routes import home_routes
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -20,6 +20,6 @@ def create_app():
     migrate.init_app(app, db)
 
     app.register_blueprint(tweet_routes)
-    app.register_blueprint(user_routes)
+    app.register_blueprint(home_routes)
 
     return app

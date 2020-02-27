@@ -25,9 +25,11 @@ def list_users():
         user.append(d)
     return jsonify(users)
 
+
 @tweet_routes.route("/users/add")
 def add_new():
     return render_template("add_new.html")
+
 
 @tweet_routes.route("/users/request", methods=["POST"])
 def request_user():
@@ -35,10 +37,10 @@ def request_user():
     try:
         twitter_user = twit_cli.get_user(request.form["new_user"])
         logging.info(twitter_user.id)
-        # ~ breakpoint()
+
         # check if user is in database
         logging.info("Trying query for user...")
-        if User.query.get(twitter_user.id) == None:
+        if User.query.get(twitter_user.id) is None:
             user = User(id=twitter_user.id)
         else:
             return jsonify({"message": "EXISTS User Exists"})
@@ -47,8 +49,6 @@ def request_user():
         user.name = twitter_user.name
         user.location = twitter_user.location
         user.followers_count = twitter_user.followers_count
-
-        # ~ breakpoint()
 
         db.session.add(user)
         db.session.commit()
@@ -59,11 +59,19 @@ def request_user():
                                           exclude_replies=True,
                                           include_rts=False)
 
-        for status in statuses:
+        # zip tweets and embeddings together to improve performance
+        bas_emb = basilica.embed_sentences
+        status_list = [s.full_text for s in statuses]
+        embedding_list = [e for e in bas_emb(status_list,
+                                             model="twitter")]
+
+        tweet_info = list(zip(statuses, embedding_list))
+
+        for status, embedded_tweet in tweet_info:
             tweet = Tweet(id=status.id)
             tweet.user_id = status.author.id
             tweet.full_text = status.full_text
-            tweet.embedding = basilica.embed_sentence(status.full_text)
+            tweet.embedding = embedded_tweet
 
             db.session.add(tweet)
             logging.info("Successfully completed commit.")
@@ -76,10 +84,12 @@ def request_user():
         logging.error(err)
         return jsonify({"message": f"Can't find {requested}"})
 
+
 @tweet_routes.route("/users/set")
 def set_users():
     user_records = User.query.all()
     return render_template("predictions.html", users=user_records)
+
 
 @tweet_routes.route("/users/predict", methods=["POST"])
 def predict():
@@ -89,9 +99,6 @@ def predict():
 
     user_a = User.query.filter(User.screen_name == screen_name_a).one()
     user_b = User.query.filter(User.screen_name == screen_name_b).one()
-
-
-
 
     X = []
     y = []
@@ -110,5 +117,4 @@ def predict():
     prediction = classifier.predict([embedded_tweet])
 
     return render_template("results.html",
-        predicted=prediction[0]
-    )
+                           predicted=prediction[0])

@@ -11,6 +11,7 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+
 def create_app():
     """Create and configure an instance of Flask"""
     app = Flask(__name__)
@@ -24,5 +25,6 @@ def create_app():
     app.register_blueprint(home_routes)
 
     return app
+
 
 twitoff = create_app()

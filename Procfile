@@ -1,1 +1,1 @@
-web: gunicorn TwitOff:APP -t 120 
+web: gunicorn wsgi:twitoff

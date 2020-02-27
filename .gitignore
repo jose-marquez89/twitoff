@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 # IDE project files
-*.geany  
+*.geany
 
 # database files
 *.db

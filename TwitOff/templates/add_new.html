@@ -1,16 +1,22 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <h2>Add a new user: </h2>
+    <div class="row">
+    <div class="col-lg-4">
     <form action="/users/request", method="POST">
-        <label>User:</label>
-        <input type="text" name="new_user" placeholder="Enter User">
-        <button>Get User</button>
+        <div class="form-group">
+            <label for="addNewUser">Add a new user</label>
+            <input type="text" class="form-control" id="addNewUser" name="new_user" placeholder="Enter User">
+            <button type="submit" class="btn btn-primary">Add</button>
+
+        </div>
+
     </form>
+    </div>
+    </div>
     <br>
-    <p><strong>Caution</strong> - Reset the database:</p>
     <form action="/reset", method="DELETE">
-        <button>Reset Database</button>
+        <button type="submit" class="btn btn-danger">Reset Database</button>
     </form>
 
 {% endblock %}

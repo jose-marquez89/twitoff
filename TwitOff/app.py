@@ -10,13 +10,24 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+SQLITE_URL = os.getenv("SQLITE_URL")
 
 
-def create_app():
-    """Create and configure an instance of Flask"""
+def create_app(local=False): 
+    """Create and configure an instance of Flask
+    
+    Keyword Arguments:
+    local -- Default is False, if True creates a local
+             testing version of the application using 
+             a sqlite database.
+    """
     app = Flask(__name__)
-
-    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+    
+    if local:
+        app.config["SQLALCHEMY_DATABASE_URI"] = SQLITE_URL
+    else:
+        app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+    
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
     migrate.init_app(app, db)
@@ -28,3 +39,4 @@ def create_app():
 
 
 twitoff = create_app()
+test_app = create_app(local=True)

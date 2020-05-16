@@ -4,10 +4,14 @@
     {% block title %}
 	  <title>TwitOff</title>
     {% endblock %}
-    <!-- Main Style CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/css/bootstrap.min.css') }}">
-	  <meta charset="utf-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Main Style CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+    <!-- FontAwesome JS-->
+    <script defer src={{ url_for('static', filename="js/all.min.js") }}></script>
 </head>
 
 <body>
@@ -38,13 +42,13 @@
           <li class="nav-item">
             <a class="nav-link" href="/">Home</a>
           </li>
-         <li class="nav-item">
+          <li class="nav-item">
            <a class="nav-link" href="/users/add">Add Users</a>
-         </li>
-         <li class="nav-item">
+          </li>
+          <li class="nav-item">
            <a class="nav-link" href="/users/set">Predict</a>
+          </li>
         </ul>
-
       </div>
     </nav>
 
@@ -55,10 +59,12 @@
       </div>
 
       <!-- FOOTER -->
-      <div id="footer">
-        <hr>
-        &copy; Copyright 2019
-        <a href="https://www.github.com">GitHub</a>
+      <div id="footer" class="social-footer">
+          <ul class="social-list">
+            <li class="social-item"><a href="https://github.com/jose-marquez89/twitoff"><i class="fab fa-github"></i></a></li>
+			      <li class="social-item"><a href="https://twitter.com/jlmarquez89"><i class="fab fa-twitter"></i></a></li>
+            <li class="social-item"><a href="https://www.linkedin.com/in/jose-marquez89"><i class="fab fa-linkedin"></i></a></li>
+          <ul class="social-list">
       </div>
     </div>
 
